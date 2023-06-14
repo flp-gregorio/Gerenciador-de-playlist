@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import os.path
+import pickle
 
 class Musica:
     def __init__(self, nroMusica, titulo):
@@ -104,6 +106,7 @@ class LimiteInsereAlbum(tk.Toplevel):
 
         self.buttonConcluir = tk.Button(self.frameButton3 ,text="Concluir")           
         self.buttonConcluir.pack(side="bottom")
+        self.buttonConcluir.bind("<Button>", controle.salvaAlbums)
         self.buttonConcluir.bind("<Button>", controle.concluir)
 
     def mostraJanela(self, titulo, msg):
@@ -116,8 +119,18 @@ class LimiteMostraAlbums():
 class ctrlAlbum():
     def __init__(self, controlePrincipal):
         self.ctrlPrincipal = controlePrincipal
-        self.listaAlbum = []
         self.listaMusicas = []
+        if not os.path.isfile("album.pickle"):
+            self.listaAlbum =  []
+        else:
+            with open("album.pickle", "rb") as f:
+                self.listaAlbum = pickle.load(f)
+
+    def salvaAlbums(self):
+        if len(self.listaAlbum) != 0:
+            with open("album.pickle","wb") as f:
+                pickle.dump(self.listaAlbum, f)
+
 
     def insereAlbum(self):        
         self.listaAlunosAlbum = []
@@ -159,15 +172,18 @@ class ctrlAlbum():
         musica = Musica(len(album.musica) + 1, nome)
         album.musica.append(musica)
         self.limiteIns.mostraJanela('Sucesso', 'Música número ' + str(len(album.musica)) + ' cadastrado com sucesso')
-        print(album.musica)
         self.clearHandlerMusica(event)
         self.mostraAlbum
 
     def clearHandlerMusica(self, event):
         self.limiteIns.inputNome.delete(0, len(self.limiteIns.inputNome.get()))
     
-    def getAlbumMusicas(self, event):
-        return Album.musica
+    def getAlbums(self):
+        listaAlbums = []
+        for album in self.listaAlbum:
+            print(album.artista.nome)
+            listaAlbums.append(album)
+        return listaAlbums
 
     def mostraAlbum(self):
         output = ''

@@ -1,109 +1,140 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 
-class Musica:
-
-    def __init__(self, titulo):
+class Playlist:
+    def __init__(self, titulo, musicas):
         self.__titulo = titulo
+        self.__musicas = []
     
     @property
     def titulo(self):
         return self.__titulo
     
-    @titulo.getter
-    def getTitul(self):
-        return self.__titulo
+    @property
+    def musicas(self):
+        return self.__musicas
 
-
-class LimiteInsereMusicas(tk.Toplevel):
-    def __init__(self, controle):
-
+class LimitePlaylist(tk.Toplevel):
+    def __init__(self, controle, listaArtista, listaAlbum):
         tk.Toplevel.__init__(self)
-        self.geometry('250x100')
-        self.title("Musica")
+        self.geometry('500x250')
+        self.title("Album")
         self.controle = controle
+        self.listaAlbum = listaAlbum
 
-        self.frameNro = tk.Frame(self)
+        # album
         self.frameNome = tk.Frame(self)
+        self.frameDiscip = tk.Frame(self)
+        self.frameEstudante = tk.Frame(self)
         self.frameButton = tk.Frame(self)
-        self.frameNro.pack()
+        self.frameButton2 = tk.Frame(self)
+        # album
         self.frameNome.pack()
-        self.frameButton.pack()
-      
-        self.labelNro = tk.Label(self.frameNro,text="Nro Matrícula: ")
-        self.labelNome = tk.Label(self.frameNome,text="Nome: ")
-        self.labelNro.pack(side="left")
+        self.frameDiscip.pack()
+        self.frameEstudante.pack()
+        self.frameButton.pack()  
+        self.frameButton2.pack()  
+
+        self.labelNome = tk.Label(self.frameNome,text="Nome da playlist: ")
         self.labelNome.pack(side="left")  
-
-        self.inputNro = tk.Entry(self.frameNro, width=20)
-        self.inputNro.pack(side="left")
         self.inputNome = tk.Entry(self.frameNome, width=20)
-        self.inputNome.pack(side="left")             
-      
-        self.buttonSubmit = tk.Button(self.frameButton ,text="Enter")      
-        self.buttonSubmit.pack(side="left")
-        self.buttonSubmit.bind("<Button>", controle.enterHandler)
-      
-        self.buttonClear = tk.Button(self.frameButton ,text="Clear")      
-        self.buttonClear.pack(side="left")
-        self.buttonClear.bind("<Button>", controle.clearHandler)  
+        self.inputNome.pack(side="left") 
 
-        self.buttonFecha = tk.Button(self.frameButton ,text="Concluído")      
-        self.buttonFecha.pack(side="left")
-        self.buttonFecha.bind("<Button>", controle.fechaHandler)
+        self.labelDiscip = tk.Label(self.frameDiscip, text="Escolha o artista: ")
+        self.labelDiscip.pack(side="left")
+
+        self.escolhaCombo = tk.StringVar()
+        self.combobox = ttk.Combobox(self.frameDiscip, width=15, textvariable=self.escolhaCombo)
+        self.combobox.pack(side="left")
+        self.combobox['values'] = listaArtista
+        self.combobox.bind("<<ComboboxSelected>>", self.filter_listbox)  # Bind the function to the event
+
+        self.labelEst = tk.Label(self.frameEstudante, text="Escolha as musicas: ")
+        self.labelEst.pack(side="left")
+        self.listbox = tk.Listbox(self.frameEstudante)
+        self.listbox.pack(side="left")   
+
+        self.buttonConcluir = tk.Button(self.frameButton, text="Inserir Música", command=self.controle.insereMusica)           
+        self.buttonConcluir.pack(side="bottom")
+
+        self.buttonCriar = tk.Button(self.frameButton, text="Criar Playlist", command=self.controle.criaPlaylist)           
+        self.buttonCriar.pack(side="bottom")
 
     def mostraJanela(self, titulo, msg):
-        messagebox.showinfo(titulo, msg)
+        messagebox.showinfo(titulo, msg)    
 
-class LimiteMostraMusicas():
+    def filter_listbox(self, event):
+        selected_artist = self.escolhaCombo.get()
+        self.listbox.delete(0, tk.END)  # Clear the listbox
+
+        for album in self.listaAlbum:
+            if selected_artist == album.artista.nome:
+                for msc in album.musica:
+                    self.listbox.insert(tk.END, msc.titulo)
+       
+
+class LimiteMostraAlbums():
     def __init__(self, str):
-        messagebox.showinfo('Lista de Musicas', str)
+        messagebox.showinfo('Lista de Álbuns', str)
 
-      
-class ctrlPlaylist():       
+class ctrlPlaylist():
     def __init__(self, controlePrincipal):
         self.ctrlPrincipal = controlePrincipal
+        self.playlists = []
         self.listaMusicas = []
 
-    def getMusica(self, titulo):
-        mscRet = None
-        for msc in self.listaMusicas:
-            if msc.getMusica() == titulo:
-                mscRet = msc
-        return mscRet
 
-    def getListaMusicas(self):
-        listaMsc = []
-        for msc in self.listaMusicas:
-            listaMsc.append(msc.gettitulo())
-        return listaMsc
+    def inserePlaylist(self):
+        listaArtista = self.ctrlPrincipal.ctrlArtista.getListaArtistas()
+        listaMusica = self.ctrlPrincipal.ctrlAlbum.getAlbums()
+        self.limitePlaylist = LimitePlaylist(self, listaArtista, listaMusica)
 
-    def insereMusicas(self):
-        self.limiteIns = LimiteInsereMusicas(self) 
+    def criaPlaylist(self):
+        nome = self.limitePlaylist.inputNome.get()
 
-    def mostraMusicas(self):
-        str = 'Nro Matric. -- Nome\n'
-        for msc in self.listaMusicas:
-            str += msc.getMusica() + ' -- ' + msc.getNome() + '\n'       
-        self.limiteLista = LimiteMostraMusicas(str)
+        if not nome:
+            self.limitePlaylist.mostraJanela('Erro', 'Digite um nome para a playlist')
+            return
 
-    def enterHandler(self, event):
-        titulo = self.limiteIns.inputNro.get()
-        nome = self.limiteIns.inputNome.get()
-        Musica = Musica(titulo, nome)
-        self.listaMusicas.append(Musica)
-        self.limiteIns.mostraJanela('Sucesso', 'Musica cadastrado com sucesso')
-        self.clearHandler(event)
+        for playlist in self.playlists:
+            if playlist.titulo == nome:
+                self.limitePlaylist.mostraJanela('Erro', 'Já existe uma playlist com esse nome')
+                return
 
-    def clearHandler(self, event):
-        self.limiteIns.inputNro.delete(0, len(self.limiteIns.inputNro.get()))
-        self.limiteIns.inputNome.delete(0, len(self.limiteIns.inputNome.get()))
+        novaPlaylist = Playlist(nome, None)
+        self.playlists.append(novaPlaylist)
+        self.limitePlaylist.mostraJanela('Sucesso', 'Playlist criada com sucesso')
 
-    def fechaHandler(self, event):
-        self.limiteIns.dmscroy()
+    def insereMusica(self):
+
+        if not self.playlists:
+            self.LimitePlaylist.mostraJanela('Erro', 'Nenhuma playlist foi criada')
+            return
+        
+        msc = self.limitePlaylist.listbox.get(tk.ACTIVE)
+
+        if not msc:
+            self.limitePlaylist.mostraJanela('Erro', 'Selecione uma música para inserir na playlist')
+            return
+
+        pl = self.playlists[-1]
+        pl.musicas.append(msc)
+        self.limitePlaylist.mostraJanela('Sucesso', 'Música inserida')
+        self.limitePlaylist.listbox.delete(tk.ACTIVE)
     
-    def insereMusica(self, event):
-        print(" ")
+    def mostraPlaylist(self):
+        output = ''
+        for playlist in self.playlists:
+            output += 'Titulo: ' + playlist.titulo + '\n'
+            output += 'Musicas:\n'
+            for msc in playlist.musicas:  # Iterate over the song titles
+                output += msc + '\n'  # Access the song title directly
+            output += '------\n'
 
-    def mostraPlaylist(self, event):
-        print(" ")
+        self.limiteLista = LimiteMostraAlbums(output)
+
+
+    def concluir(self, event):
+        self.LimitePlaylist.destroy()
+    

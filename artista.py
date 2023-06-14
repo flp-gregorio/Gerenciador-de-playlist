@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
+import os.path
+import pickle
 
 class Artista:
 
@@ -50,9 +52,17 @@ class LimiteMostraArtistas():
 
       
 class ctrlArtista():       
-    def __init__(self, controlePrincipal):
-        self.ctrlPrincipal = controlePrincipal
-        self.listaArtistas = []
+    def __init__(self):
+        if not os.path.isfile("artista.pickle"):
+            self.listaArtistas =  []
+        else:
+            with open("artista.pickle", "rb") as f:
+                self.listaArtistas = pickle.load(f)
+
+    def salvaArtistas(self):
+        if len(self.listaArtistas) != 0:
+            with open("artista.pickle","wb") as f:
+                pickle.dump(self.listaArtistas, f)
 
     def getArtista(self, nome):
         mscRet = None
@@ -89,7 +99,6 @@ class ctrlArtista():
             if artista.nome == nome:
                 artistas_encontrados.append(artista)
         return artistas_encontrados
-
 
     def clearHandler(self, event):
         self.limiteIns.inputNome.delete(0, len(self.limiteIns.inputNome.get()))

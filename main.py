@@ -12,7 +12,8 @@ class LimitePrincipal():
         self.menubar = tk.Menu(self.root)        
         self.AlbumMenu = tk.Menu(self.menubar)
         self.ArtistaMenu = tk.Menu(self.menubar)
-        self.PlaylistMenu = tk.Menu(self.menubar)     
+        self.PlaylistMenu = tk.Menu(self.menubar)  
+        self.SalvaMenu = tk.Menu(self.menubar)   
 
         self.AlbumMenu.add_command(label="Insere", \
                     command=self.controle.insereAlbum)
@@ -28,12 +29,17 @@ class LimitePrincipal():
         self.menubar.add_cascade(label="Artista", \
                     menu=self.ArtistaMenu)
 
-        self.PlaylistMenu.add_command(label="Insere", \
+        self.PlaylistMenu.add_command(label="Cadastrar", \
                     command=self.controle.inserePlaylist)
-        self.PlaylistMenu.add_command(label="Mostra", \
+        self.PlaylistMenu.add_command(label="Consultar", \
                     command=self.controle.mostraPlaylist)                     
         self.menubar.add_cascade(label="Playlist", \
-                    menu=self.PlaylistMenu)        
+                    menu=self.PlaylistMenu)    
+
+        self.SalvaMenu.add_command(label="Salvar", \
+                    command=self.controle.Salvar)                     
+        self.menubar.add_cascade(label="Salvar", \
+                    menu=self.SalvaMenu)       
 
         self.root.config(menu=self.menubar)
 
@@ -43,7 +49,7 @@ class ControlePrincipal():
         self.root = tk.Tk()
 
         self.ctrlAlbum = alb.ctrlAlbum(self)
-        self.ctrlArtista = art.ctrlArtista(self)
+        self.ctrlArtista = art.ctrlArtista()
         self.ctrlPlaylist = plt.ctrlPlaylist(self)
 
         self.limite = LimitePrincipal(self.root, self) 
@@ -65,10 +71,15 @@ class ControlePrincipal():
         self.ctrlAlbum.mostraAlbum()
 
     def inserePlaylist(self):
-        self.ctrlPlaylist.insereMusica()
+        self.ctrlPlaylist.inserePlaylist()
 
     def mostraPlaylist(self):
         self.ctrlPlaylist.mostraPlaylist()
+
+    def Salvar(self):
+        #self.ctrlAlbum.salvaAlbums()
+        self.ctrlArtista.salvaArtistas()
+        #self.root.destroy()
 
 if __name__ == '__main__':
     c = ControlePrincipal()
